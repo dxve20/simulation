@@ -1,0 +1,1273 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS Master | Windows Server 2019 Installation Simulator (COC 3)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        winPurple: '#3b0066',
+                        winBlue: '#0078d7',
+                        winDarkBlue: '#002050',
+                        winGray: '#f0f0f0',
+                        winBorder: '#999999',
+                        brandAccent: '#06b6d4',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['Fira Code', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Windows Setup Styling */
+        .win-gradient-bg {
+            background: linear-gradient(135deg, #2b0845 0%, #170529 40%, #081d3d 100%);
+        }
+        .win-window-shadow {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+        }
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glow-accent {
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+        }
+        .win-btn {
+            background: linear-gradient(to bottom, #ffffff 0%, #e1e1e1 100%);
+            border: 1px solid #707070;
+            color: #000;
+            font-size: 13px;
+        }
+        .win-btn:hover {
+            background: linear-gradient(to bottom, #eaf6fd 0%, #a7d9f5 100%);
+            border-color: #3c7fb1;
+        }
+        .win-btn-primary {
+            background: linear-gradient(to bottom, #0080f0 0%, #0060c0 100%);
+            border: 1px solid #004090;
+            color: #fff;
+        }
+        .win-btn-primary:hover {
+            background: linear-gradient(to bottom, #1090ff 0%, #0070d0 100%);
+        }
+        
+        /* Mascot Bounce Animation */
+        @keyframes floatSlow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(2deg); }
+        }
+        .animate-float {
+            animation: floatSlow 4s ease-in-out infinite;
+        }
+
+        /* Certificate Styling */
+        @media print {
+            body * { visibility: hidden; }
+            #printable-certificate, #printable-certificate * { visibility: visible; }
+            #printable-certificate { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col selection:bg-cyan-500 selection:text-black">
+
+    <!-- TOP NAVIGATION HEADER -->
+    <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Brand / Logo -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-cyan-500/20">
+                    <i class="fa-solid fa-server"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">CSS Master</h1>
+                    <p class="text-xs text-slate-400">COC 3: Windows Server 2019</p>
+                </div>
+            </div>
+
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex items-center space-x-1">
+                <button onclick="switchTab('tab-sim')" id="nav-sim" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all text-cyan-400 bg-cyan-950/50 border border-cyan-800/50">
+                    <i class="fa-solid fa-laptop-code mr-2"></i>Simulator
+                </button>
+                <button onclick="switchTab('tab-quiz')" id="nav-quiz" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-list-check mr-2"></i>Assessment Quiz
+                </button>
+                <button onclick="switchTab('tab-leaderboard')" id="nav-leaderboard" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-trophy mr-2"></i>Leaderboard
+                </button>
+                <button onclick="switchTab('tab-badges')" id="nav-badges" class="nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800">
+                    <i class="fa-solid fa-medal mr-2"></i>Achievements
+                </button>
+            </nav>
+
+            <!-- User Widget / Score -->
+            <div class="flex items-center space-x-3">
+                <!-- Score Pill -->
+                <div class="bg-slate-800/80 border border-slate-700/80 rounded-full px-3.5 py-1.5 flex items-center space-x-2">
+                    <i class="fa-solid fa-star text-amber-400 text-sm"></i>
+                    <span id="header-user-points" class="font-bold text-amber-400 text-sm">0</span>
+                    <span class="text-xs text-slate-400">PTS</span>
+                </div>
+
+                <!-- User Profile / Auth Button -->
+                <div id="user-profile-btn-container">
+                    <button onclick="openAuthModal()" class="bg-cyan-600 hover:bg-cyan-500 text-white px-3.5 py-1.5 rounded-lg text-sm font-semibold transition flex items-center space-x-2 shadow-lg shadow-cyan-600/20">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span id="user-display-name">Login / Register</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Row -->
+        <div class="md:hidden flex items-center justify-around bg-slate-900 border-t border-slate-800 py-2 px-2">
+            <button onclick="switchTab('tab-sim')" class="mobile-nav-btn text-xs font-medium text-cyan-400 flex flex-col items-center">
+                <i class="fa-solid fa-laptop-code text-base mb-0.5"></i>Sim
+            </button>
+            <button onclick="switchTab('tab-quiz')" class="mobile-nav-btn text-xs font-medium text-slate-400 flex flex-col items-center">
+                <i class="fa-solid fa-list-check text-base mb-0.5"></i>Quiz
+            </button>
+            <button onclick="switchTab('tab-leaderboard')" class="mobile-nav-btn text-xs font-medium text-slate-400 flex flex-col items-center">
+                <i class="fa-solid fa-trophy text-base mb-0.5"></i>Ranks
+            </button>
+            <button onclick="switchTab('tab-badges')" class="mobile-nav-btn text-xs font-medium text-slate-400 flex flex-col items-center">
+                <i class="fa-solid fa-medal text-base mb-0.5"></i>Badges
+            </button>
+        </div>
+    </header>
+
+    <!-- AUTH MODAL -->
+    <div id="auth-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+        <div class="glass-panel max-w-md w-full rounded-2xl p-6 sm:p-8 border border-slate-700 shadow-2xl relative">
+            <button onclick="closeAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+
+            <div class="text-center mb-6">
+                <div class="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 text-2xl mx-auto mb-3">
+                    <i class="fa-solid fa-user-gear"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white">Student Account Portal</h3>
+                <p class="text-xs text-slate-400 mt-1">Track your CSS NC II score, achievements, and assessment certification.</p>
+            </div>
+
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Student Full Name / Username</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-user absolute left-3 top-3 text-slate-500 text-sm"></i>
+                        <input type="text" id="auth-username" required placeholder="e.g. Juan Dela Cruz" class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-medium text-slate-300 mb-1">Section / Batch</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-graduation-cap absolute left-3 top-3 text-slate-500 text-sm"></i>
+                        <input type="text" id="auth-section" placeholder="e.g. 12-CSS-A" class="w-full bg-slate-900 border border-slate-700 rounded-lg pl-9 pr-3 py-2 text-sm text-white focus:outline-none focus:border-cyan-500">
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full py-2.5 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 font-semibold text-white text-sm shadow-lg shadow-cyan-500/25 transition">
+                    Save Account & Start Learning
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT WRAPPER -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- TAB 1: SIMULATOR (ACTIVE BY DEFAULT) -->
+        <section id="tab-sim" class="tab-content block space-y-6">
+            
+            <!-- Simulation Header Banner -->
+            <div class="flex flex-col md:flex-row md:items-center justify-between bg-slate-900/60 p-4 rounded-xl border border-slate-800 gap-4">
+                <div>
+                    <span class="inline-block px-2.5 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 text-xs font-medium mb-1">
+                        Hands-On Interactive Simulation
+                    </span>
+                    <h2 class="text-xl sm:text-2xl font-bold text-white">Windows Server 2019 GUI Setup</h2>
+                    <p class="text-xs sm:text-sm text-slate-400">Perform the exact CSS NC II installation steps with zero loading wait times.</p>
+                </div>
+
+                <div class="flex items-center space-x-3">
+                    <button onclick="resetSimulation()" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition flex items-center space-x-2">
+                        <i class="fa-solid fa-rotate-right"></i>
+                        <span>Restart Setup</span>
+                    </button>
+                    
+                    <div class="bg-slate-800/90 px-3.5 py-2 rounded-lg border border-slate-700 text-xs">
+                        <span class="text-slate-400">Current Step:</span>
+                        <span id="sim-step-indicator" class="font-bold text-cyan-400 ml-1">Step 1 / 8</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIMULATOR + AI MASCOT GRID -->
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+
+                <!-- SIMULATOR DISPLAY FRAME (3 COLS ON DESKTOP) -->
+                <div class="lg:col-span-3">
+                    <div class="win-gradient-bg rounded-2xl p-3 sm:p-6 min-h-[520px] flex items-center justify-center relative overflow-hidden border border-purple-900/50 win-window-shadow">
+                        
+                        <!-- SIMULATION CONTAINER WINDOW -->
+                        <div id="sim-window" class="w-full max-w-2xl bg-[#f0f0f0] text-black rounded shadow-2xl border border-slate-400 overflow-hidden text-sm select-none">
+                            
+                            <!-- Classic Windows Setup Titlebar -->
+                            <div class="bg-gradient-to-r from-[#005a9e] to-[#0078d7] text-white px-3 py-1.5 flex items-center justify-between text-xs font-semibold">
+                                <div class="flex items-center space-x-2">
+                                    <i class="fa-brands fa-windows"></i>
+                                    <span>Windows Server 2019 Setup</span>
+                                </div>
+                                <div class="flex items-center space-x-2 opacity-80">
+                                    <button class="hover:bg-blue-700 px-1.5 rounded"><i class="fa-solid fa-minus text-[10px]"></i></button>
+                                    <button class="hover:bg-red-600 px-1.5 rounded"><i class="fa-solid fa-xmark text-[10px]"></i></button>
+                                </div>
+                            </div>
+
+                            <!-- STEP PANELS INJECTED HERE -->
+                            <div id="sim-screen-body" class="p-6 sm:p-8 min-h-[380px] flex flex-col justify-between bg-[#f0f0f0]">
+                                <!-- JavaScript populates dynamic step UI here -->
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- AI MASCOT SIDEBAR (1 COL ON DESKTOP) -->
+                <div class="lg:col-span-1 flex flex-col space-y-4">
+                    
+                    <!-- Tech Guide Bot Mascot Widget -->
+                    <div class="glass-panel rounded-2xl p-5 border border-slate-800 relative overflow-hidden flex-1 flex flex-col">
+                        <!-- Bot Header -->
+                        <div class="flex items-center space-x-3 pb-4 border-b border-slate-800">
+                            <div class="relative">
+                                <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-500 to-emerald-400 p-0.5 animate-float shadow-lg shadow-cyan-500/20">
+                                    <div class="w-full h-full bg-slate-900 rounded-[14px] flex items-center justify-center text-cyan-400 text-xl">
+                                        <i id="bot-icon" class="fa-solid fa-robot"></i>
+                                    </div>
+                                </div>
+                                <span class="absolute bottom-0 right-0 w-3.5 h-3.5 bg-emerald-500 border-2 border-slate-900 rounded-full"></span>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-white text-sm">Tech Guide Bot</h4>
+                                <p class="text-[11px] text-cyan-400 font-medium">CSS NC II Assistant</p>
+                            </div>
+                        </div>
+
+                        <!-- Speech / Advice Box -->
+                        <div class="my-4 bg-slate-900/80 rounded-xl p-4 border border-slate-800 text-xs leading-relaxed text-slate-300 relative flex-1 flex flex-col justify-center">
+                            <div class="absolute -top-2 left-6 w-3 h-3 bg-slate-900 border-t border-l border-slate-800 rotate-45"></div>
+                            <p id="bot-speech-text" class="italic">
+                                "Welcome CSS Student! I will guide you through the official Windows Server 2019 installation task for COC 3. Pay close attention to GUI selection guidelines!"
+                            </p>
+                        </div>
+
+                        <!-- Points Feedback Status -->
+                        <div id="feedback-alert" class="hidden p-3 rounded-xl text-xs font-semibold flex items-center space-x-2">
+                            <i id="feedback-icon" class="fa-solid"></i>
+                            <span id="feedback-text"></span>
+                        </div>
+                    </div>
+
+                    <!-- CSS Quick Tips Panel -->
+                    <div class="glass-panel rounded-2xl p-4 border border-slate-800 text-xs space-y-2">
+                        <div class="flex items-center space-x-2 text-amber-400 font-semibold mb-1">
+                            <i class="fa-solid fa-lightbulb"></i>
+                            <span>COC 3 Pro-Tip</span>
+                        </div>
+                        <p class="text-slate-400 text-[11px] leading-normal">
+                            Always select <strong class="text-slate-200">Desktop Experience</strong> unless specified. Standard without Desktop Experience installs Server Core (command line only).
+                        </p>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+
+        <!-- TAB 2: ASSESSMENT QUIZ -->
+        <section id="tab-quiz" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900/60 p-6 rounded-2xl border border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div>
+                    <span class="inline-block px-2.5 py-1 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-400 text-xs font-medium mb-1">
+                        COC 3 Certification Assessment
+                    </span>
+                    <h2 class="text-2xl font-bold text-white">Post-Simulation Knowledge Check</h2>
+                    <p class="text-xs sm:text-sm text-slate-400">Answer these scenario questions. You need at least 60% (3/5) to pass and earn your certificate.</p>
+                </div>
+                <div class="bg-purple-950/40 border border-purple-800/50 rounded-xl px-4 py-2.5 text-center">
+                    <span class="text-xs text-slate-400 block">Passing Mark</span>
+                    <span class="text-lg font-bold text-purple-400">60% (3 / 5)</span>
+                </div>
+            </div>
+
+            <!-- QUIZ CONTAINER -->
+            <div id="quiz-container" class="glass-panel rounded-2xl p-6 sm:p-8 border border-slate-800 space-y-8 max-w-4xl mx-auto">
+                <!-- Dynamically populated via JS -->
+            </div>
+
+            <!-- QUIZ RESULT & CERTIFICATE MODAL TRIGGER -->
+            <div id="quiz-result-card" class="hidden glass-panel rounded-2xl p-8 border border-cyan-500/40 text-center space-y-4 max-w-2xl mx-auto">
+                <div id="quiz-status-icon" class="w-16 h-16 rounded-full mx-auto flex items-center justify-center text-3xl"></div>
+                <h3 id="quiz-result-title" class="text-2xl font-bold"></h3>
+                <p id="quiz-result-desc" class="text-sm text-slate-300"></p>
+                
+                <div class="pt-4 flex flex-wrap justify-center gap-3">
+                    <button onclick="resetQuiz()" class="px-5 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-medium text-sm transition">
+                        Retake Assessment
+                    </button>
+                    <button id="view-cert-btn" onclick="generateCertificate()" class="hidden px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-emerald-500 hover:from-cyan-400 hover:to-emerald-400 text-slate-950 font-bold text-sm shadow-lg transition">
+                        <i class="fa-solid fa-award mr-2"></i>View Official Certificate
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: LEADERBOARD -->
+        <section id="tab-leaderboard" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900/60 p-6 rounded-2xl border border-slate-800">
+                <h2 class="text-2xl font-bold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-trophy text-amber-400"></i>
+                    <span>Student Leaderboard</span>
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-400">Rankings based on total points gained through flawless simulation tasks and assessment performance.</p>
+            </div>
+
+            <div class="glass-panel rounded-2xl border border-slate-800 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-sm">
+                        <thead class="bg-slate-900/80 text-xs uppercase text-slate-400 border-b border-slate-800">
+                            <tr>
+                                <th class="py-3.5 px-6">Rank</th>
+                                <th class="py-3.5 px-6">Student Name</th>
+                                <th class="py-3.5 px-6">Section</th>
+                                <th class="py-3.5 px-6 text-center">Simulation Score</th>
+                                <th class="py-3.5 px-6 text-right">Total Points</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leaderboard-body" class="divide-y divide-slate-800 text-slate-300">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 4: ACHIEVEMENTS & BADGES -->
+        <section id="tab-badges" class="tab-content hidden space-y-6">
+            <div class="bg-slate-900/60 p-6 rounded-2xl border border-slate-800">
+                <h2 class="text-2xl font-bold text-white flex items-center space-x-2">
+                    <i class="fa-solid fa-medal text-cyan-400"></i>
+                    <span>Badges & Achievements</span>
+                </h2>
+                <p class="text-xs sm:text-sm text-slate-400">Unlock credentials as you master Windows Server 2019 installation concepts.</p>
+            </div>
+
+            <div id="badges-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Injected by JS -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- CERTIFICATE PRINT MODAL -->
+    <div id="cert-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4 hidden overflow-y-auto">
+        <div class="relative max-w-3xl w-full">
+            <button onclick="closeCertModal()" class="absolute -top-10 right-0 text-white hover:text-cyan-400 text-xl font-bold">
+                <i class="fa-solid fa-xmark mr-2"></i>Close
+            </button>
+            
+            <div id="printable-certificate" class="bg-slate-900 border-8 border-cyan-500/60 rounded-3xl p-8 sm:p-12 text-center relative overflow-hidden shadow-2xl text-white">
+                <!-- Background Seal Watermark -->
+                <div class="absolute -right-10 -bottom-10 opacity-5 text-cyan-400 text-[200px] pointer-events-none">
+                    <i class="fa-solid fa-award"></i>
+                </div>
+
+                <div class="border-2 border-dashed border-cyan-500/30 p-6 sm:p-8 rounded-2xl">
+                    <div class="w-16 h-16 rounded-2xl bg-cyan-500/20 text-cyan-400 mx-auto flex items-center justify-center text-3xl mb-4">
+                        <i class="fa-solid fa-server"></i>
+                    </div>
+
+                    <p class="text-xs uppercase tracking-widest text-cyan-400 font-semibold">Computer Systems Servicing NC II</p>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-1">Certificate of Competency</h2>
+                    <p class="text-xs text-slate-400 mt-1">COC 3: Installation of Microsoft Windows Server 2019</p>
+
+                    <div class="my-6">
+                        <p class="text-xs text-slate-400">This is to certify that</p>
+                        <h3 id="cert-user-name" class="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent my-1">
+                            Juan Dela Cruz
+                        </h3>
+                        <p id="cert-user-section" class="text-xs text-slate-400">Section: 12-CSS-A</p>
+                    </div>
+
+                    <p class="text-xs sm:text-sm text-slate-300 max-w-lg mx-auto leading-relaxed">
+                        has successfully completed the interactive hands-on setup simulation and passed the post-assessment evaluation with a score of <span id="cert-score" class="font-bold text-cyan-400">100%</span>.
+                    </p>
+
+                    <div class="mt-8 pt-6 border-t border-slate-800 flex items-center justify-between text-left text-xs text-slate-400">
+                        <div>
+                            <p class="font-semibold text-slate-200">CSS Master Learning Portal</p>
+                            <p>Verified Student Prototype</p>
+                        </div>
+                        <div class="text-right">
+                            <p id="cert-date" class="font-mono text-cyan-400"></p>
+                            <p>Certificate ID: <span id="cert-id" class="font-mono text-slate-300"></span></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4 text-center">
+                <button onclick="window.print()" class="px-6 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-sm shadow-lg transition">
+                    <i class="fa-solid fa-print mr-2"></i>Print Certificate / Save PDF
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- JAVASCRIPT LOGIC -->
+    <script>
+        
+        // GLOBAL STATE
+        const state = {
+            user: {
+                name: 'Guest Student',
+                section: '12-CSS-1',
+                points: 0,
+                badges: [],
+                simCompleted: false,
+                quizScore: 0
+            },
+            simStep: 0,
+            simSelectedOs: null,
+            simSelectedType: null,
+            simPartitionCreated: false,
+            simPartitionSelected: false,
+            quizAnswers: {},
+            leaderboardData: [
+                { name: "Maria Santos", section: "12-CSS-A", simScore: 400, points: 400 },
+                { name: "Kenneth Reyes", section: "12-CSS-B", simScore: 350, points: 350 },
+                { name: "Angel Locsin", section: "12-CSS-A", simScore: 300, points: 300 }
+            ]
+        };
+
+        const BADGES_DEFINITIONS = [
+            { id: 'first_step', title: 'Boot Initiator', desc: 'Started Windows Server 2019 Setup', icon: 'fa-power-off', color: 'text-blue-400' },
+            { id: 'gui_master', title: 'Desktop Experience Pro', desc: 'Selected the correct GUI OS Edition', icon: 'fa-desktop', color: 'text-cyan-400' },
+            { id: 'partition_master', title: 'Partition Pro', desc: 'Created system & primary partitions correctly', icon: 'fa-hard-drive', color: 'text-emerald-400' },
+            { id: 'sec_master', title: 'Server Administrator', desc: 'Configured strong password & finished installation', icon: 'fa-user-shield', color: 'text-amber-400' },
+            { id: 'quiz_passed', title: 'COC 3 Certified', desc: 'Passed the post-simulation assessment quiz', icon: 'fa-certificate', color: 'text-purple-400' }
+        ];
+
+        const QUIZ_QUESTIONS = [
+            {
+                id: 1,
+                question: "In CSS NC II Assessment for COC 3, which OS edition choice provides full Graphical User Interface (GUI) management tools?",
+                options: [
+                    "Windows Server 2019 Standard Evaluation (Server Core)",
+                    "Windows Server 2019 Standard Evaluation (Desktop Experience)",
+                    "Windows Server 2019 Minimal Shell",
+                    "Windows Server 2019 Nano Server Edition"
+                ],
+                correct: 1
+            },
+            {
+                id: 2,
+                question: "Why do we select 'Custom: Install Windows only (advanced)' during a fresh deployment?",
+                options: [
+                    "To upgrade an existing Windows 10 OS",
+                    "Because it automatically bypasses license key entry",
+                    "To perform a clean setup and configure drive partitions manually",
+                    "To skip setting the Administrator password"
+                ],
+                correct: 2
+            },
+            {
+                id: 3,
+                question: "When creating a new drive partition for Windows Server 2019, why does Windows prompt that it 'might create additional partitions'?",
+                options: [
+                    "To create a backup user folder",
+                    "To store critical system recovery files and bootloader files",
+                    "To install extra trial software",
+                    "To format the hard drive in FAT32"
+                ],
+                correct: 1
+            },
+            {
+                id: 4,
+                question: "What is required for the Administrator password in Windows Server 2019 during setup?",
+                options: [
+                    "Any 4-digit numeric PIN",
+                    "It must be left blank for first-time login",
+                    "Password complexity requirements (uppercase, lowercase, digits, special characters)",
+                    "Just the word 'administrator'"
+                ],
+                correct: 2
+            },
+            {
+                id: 5,
+                question: "What is the standard passing score threshold set for high school CSS NC II competency tasks?",
+                options: [
+                    "50%",
+                    "60%",
+                    "75%",
+                    "90%"
+                ],
+                correct: 1
+            }
+        ];
+
+
+        // SIMULATION STEP RENDERER
+        function renderSimStep() {
+            const container = document.getElementById('sim-screen-body');
+            const stepIndicator = document.getElementById('sim-step-indicator');
+            stepIndicator.textContent = `Step ${state.simStep + 1} / 8`;
+
+            switch (state.simStep) {
+                case 0:
+                    // Step 1: Initial Language Selection
+                    updateBot("Welcome! Step 1: Confirm language settings. Click 'Next' to proceed.", "info");
+                    container.innerHTML = `
+                        <div class="space-y-6">
+                            <div class="flex items-center space-x-3 border-b border-gray-300 pb-3">
+                                <i class="fa-brands fa-windows text-blue-600 text-2xl"></i>
+                                <span class="font-bold text-gray-800">Windows Server 2019 Setup</span>
+                            </div>
+
+                            <div class="space-y-4 text-xs text-gray-700 max-w-md mx-auto">
+                                <div>
+                                    <label class="block font-medium mb-1">Language to install:</label>
+                                    <select class="w-full border border-gray-400 p-1.5 bg-white rounded-none">
+                                        <option>English (United States)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-medium mb-1">Time and currency format:</label>
+                                    <select class="w-full border border-gray-400 p-1.5 bg-white rounded-none">
+                                        <option>English (United States)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block font-medium mb-1">Keyboard or input method:</label>
+                                    <select class="w-full border border-gray-400 p-1.5 bg-white rounded-none">
+                                        <option>US</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-3 pt-6 border-t border-gray-300">
+                            <button onclick="handleSimAction(true)" class="win-btn win-btn-primary px-6 py-1 font-semibold">Next</button>
+                        </div>
+                    `;
+                    break;
+
+                case 1:
+                    // Step 2: Install Now Button Screen
+                    updateBot("Step 2: Click 'Install now' to begin setting up files.", "info");
+                    container.innerHTML = `
+                        <div class="flex flex-col items-center justify-center space-y-6 py-12">
+                            <i class="fa-brands fa-windows text-cyan-600 text-6xl"></i>
+                            <button onclick="handleSimAction(true)" class="win-btn win-btn-primary px-8 py-2 text-base font-bold shadow">
+                                Install now
+                            </button>
+                            <button onclick="triggerMistake('Repair your computer is used for troubleshooting existing installations, not new setups!')" class="text-xs text-blue-700 hover:underline">
+                                Repair your computer
+                            </button>
+                        </div>
+                        <div></div>
+                    `;
+                    break;
+
+                case 2:
+                    // Step 3: Operating System Edition Selection
+                    updateBot("Step 3: CRITICAL CHOICE! Select 'Windows Server 2019 Standard Evaluation (Desktop Experience)' for full GUI.", "info");
+                    container.innerHTML = `
+                        <div class="space-y-3">
+                            <h3 class="font-bold text-gray-800">Select the operating system you want to install</h3>
+                            <p class="text-xs text-gray-600">Choose Desktop Experience for GUI tools required in CSS NC II tasks.</p>
+
+                            <div class="border border-gray-400 bg-white h-48 overflow-y-auto text-xs">
+                                <div onclick="selectOsOption(0)" id="os-opt-0" class="os-item p-2 hover:bg-blue-100 cursor-pointer border-b border-gray-200">
+                                    Windows Server 2019 Standard Evaluation
+                                </div>
+                                <div onclick="selectOsOption(1)" id="os-opt-1" class="os-item p-2 hover:bg-blue-100 cursor-pointer border-b border-gray-200 font-semibold text-blue-900">
+                                    Windows Server 2019 Standard Evaluation (Desktop Experience)
+                                </div>
+                                <div onclick="selectOsOption(2)" id="os-opt-2" class="os-item p-2 hover:bg-blue-100 cursor-pointer border-b border-gray-200">
+                                    Windows Server 2019 Datacenter Evaluation
+                                </div>
+                                <div onclick="selectOsOption(3)" id="os-opt-3" class="os-item p-2 hover:bg-blue-100 cursor-pointer">
+                                    Windows Server 2019 Datacenter Evaluation (Desktop Experience)
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-3 pt-4 border-t border-gray-300">
+                            <button onclick="validateOsStep()" class="win-btn win-btn-primary px-6 py-1 font-semibold">Next</button>
+                        </div>
+                    `;
+                    break;
+
+                case 3:
+                    // Step 4: License Terms
+                    updateBot("Step 4: Check 'I accept the license terms' box and click Next.", "info");
+                    container.innerHTML = `
+                        <div class="space-y-3">
+                            <h3 class="font-bold text-gray-800">Applicable notices and license terms</h3>
+                            <div class="border border-gray-400 bg-white p-3 h-40 overflow-y-auto text-xs text-gray-600">
+                                MICROSOFT SOFTWARE LICENSE TERMS<br>
+                                WINDOWS SERVER 2019 STANDARD EVALUATION<br><br>
+                                These license terms are an agreement between Microsoft Corporation and you. Please read them carefully. By installing or using the software, you accept these terms.
+                            </div>
+                            <div class="flex items-center space-x-2 pt-2">
+                                <input type="checkbox" id="license-check" class="rounded">
+                                <label for="license-check" class="text-xs font-medium text-gray-800">I accept the license terms</label>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-3 pt-4 border-t border-gray-300">
+                            <button onclick="validateLicenseStep()" class="win-btn win-btn-primary px-6 py-1 font-semibold">Next</button>
+                        </div>
+                    `;
+                    break;
+
+                case 4:
+                    // Step 5: Installation Type
+                    updateBot("Step 5: Select 'Custom: Install Windows only (advanced)' for clean server deployment.", "info");
+                    container.innerHTML = `
+                        <div class="space-y-4">
+                            <h3 class="font-bold text-gray-800">Which type of installation do you want?</h3>
+
+                            <div onclick="triggerMistake('Upgrade option requires an existing Windows installation. For CSS NC II fresh setups, choose Custom!')" class="border border-gray-300 bg-white p-3 hover:border-blue-500 cursor-pointer text-xs">
+                                <p class="font-bold text-blue-700">Upgrade: Install Windows and keep files, settings, and applications</p>
+                                <p class="text-gray-500 mt-1">Keeps your files and settings intact.</p>
+                            </div>
+
+                            <div onclick="handleSimAction(true, 'gui_master')" class="border border-blue-600 bg-blue-50/50 p-3 hover:border-blue-700 cursor-pointer text-xs">
+                                <p class="font-bold text-blue-800">Custom: Install Windows only (advanced)</p>
+                                <p class="text-gray-600 mt-1">Installs a clean copy of Windows. You can modify partitions here.</p>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-4 border-t border-gray-300">
+                            <button class="win-btn px-6 py-1 opacity-50" disabled>Next</button>
+                        </div>
+                    `;
+                    break;
+
+                case 5:
+                    // Step 6: Drive Partitioning
+                    updateBot("Step 6: Drive Partitioning! Click 'New', enter size, click Apply, confirm system partition warning, then select Drive 0 Partition 2.", "info");
+                    
+                    let partitionTableHtml = '';
+                    if (!state.simPartitionCreated) {
+                        partitionTableHtml = `
+                            <tr class="bg-blue-100 font-medium">
+                                <td class="p-2 border">Drive 0 Unallocated Space</td>
+                                <td class="p-2 border">60.0 GB</td>
+                                <td class="p-2 border">60.0 GB</td>
+                                <td class="p-2 border">System</td>
+                            </tr>
+                        `;
+                    } else {
+                        partitionTableHtml = `
+                            <tr onclick="selectPartition(1)" id="part-1" class="cursor-pointer hover:bg-blue-50">
+                                <td class="p-2 border">Drive 0 Partition 1: System Reserved</td>
+                                <td class="p-2 border">500.0 MB</td>
+                                <td class="p-2 border">500.0 MB</td>
+                                <td class="p-2 border">System</td>
+                            </tr>
+                            <tr onclick="selectPartition(2)" id="part-2" class="cursor-pointer ${state.simPartitionSelected ? 'bg-blue-200 font-bold' : 'hover:bg-blue-50'}">
+                                <td class="p-2 border">Drive 0 Partition 2</td>
+                                <td class="p-2 border">59.5 GB</td>
+                                <td class="p-2 border">59.5 GB</td>
+                                <td class="p-2 border">Primary</td>
+                            </tr>
+                        `;
+                    }
+
+                    container.innerHTML = `
+                        <div class="space-y-3">
+                            <h3 class="font-bold text-gray-800">Where do you want to install Windows?</h3>
+
+                            <div class="border border-gray-400 bg-white h-36 overflow-y-auto text-xs">
+                                <table class="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr class="bg-gray-100 border-b text-gray-700">
+                                            <th class="p-1.5 border">Name</th>
+                                            <th class="p-1.5 border">Total Size</th>
+                                            <th class="p-1.5 border">Free Space</th>
+                                            <th class="p-1.5 border">Type</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${partitionTableHtml}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="flex items-center space-x-2 text-xs pt-1">
+                                <button onclick="createPartitionAction()" class="win-btn px-3 py-1 font-medium ${state.simPartitionCreated ? 'opacity-50' : ''}">
+                                    <i class="fa-solid fa-plus text-emerald-600 mr-1"></i>New
+                                </button>
+                                <button onclick="triggerMistake('Format is optional here. Select Partition 2 and click Next!')" class="win-btn px-3 py-1 font-medium">
+                                    Format
+                                </button>
+                                <button onclick="triggerMistake('Delete is not required for fresh unallocated drives.')" class="win-btn px-3 py-1 font-medium">
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-3 pt-4 border-t border-gray-300">
+                            <button onclick="validatePartitionStep()" class="win-btn win-btn-primary px-6 py-1 font-semibold">Next</button>
+                        </div>
+                    `;
+                    break;
+
+                case 6:
+                    // Step 7: Fast Forwarded Progress Animation
+                    updateBot("Step 7: Windows Setup is copying and installing system features...", "info");
+                    container.innerHTML = `
+                        <div class="space-y-4 py-2">
+                            <h3 class="font-bold text-gray-800 text-base">Installing Windows</h3>
+                            <p class="text-xs text-gray-600">Your computer will restart several times. This might take a moment.</p>
+
+                            <div class="space-y-2 text-xs text-gray-700">
+                                <div class="flex items-center space-x-2 text-emerald-600 font-semibold">
+                                    <i class="fa-solid fa-check"></i>
+                                    <span>Copying Windows files (100%)</span>
+                                </div>
+                                <div class="flex items-center space-x-2 font-bold text-blue-700">
+                                    <i class="fa-solid fa-spinner animate-spin"></i>
+                                    <span>Getting files ready for installation (<span id="sim-progress-num">0</span>%)</span>
+                                </div>
+                                <div class="flex items-center space-x-2 text-gray-400">
+                                    <i class="fa-regular fa-circle"></i>
+                                    <span>Installing features</span>
+                                </div>
+                                <div class="flex items-center space-x-2 text-gray-400">
+                                    <i class="fa-regular fa-circle"></i>
+                                    <span>Installing updates</span>
+                                </div>
+                                <div class="flex items-center space-x-2 text-gray-400">
+                                    <i class="fa-regular fa-circle"></i>
+                                    <span>Finishing up</span>
+                                </div>
+                            </div>
+
+                            <div class="w-full bg-gray-200 h-3 rounded-full overflow-hidden mt-4">
+                                <div id="sim-progress-bar" class="bg-blue-600 h-full w-0 transition-all duration-300"></div>
+                            </div>
+                        </div>
+                        <div></div>
+                    `;
+                    runSimulationProgress();
+                    break;
+
+                case 7:
+                    // Step 8: Password Creation
+                    updateBot("Step 8: Set Administrator password. Password MUST contain Uppercase, Lowercase, Number & Symbol (e.g. P@ssw0rd123)!", "info");
+                    container.innerHTML = `
+                        <div class="space-y-4">
+                            <h3 class="font-bold text-gray-800">Customize settings</h3>
+                            <p class="text-xs text-gray-600">Type a password for the built-in Administrator account.</p>
+
+                            <div class="space-y-3 text-xs max-w-md">
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-1">User name:</label>
+                                    <input type="text" value="Administrator" disabled class="w-full border border-gray-300 p-1.5 bg-gray-100 text-gray-600 font-semibold">
+                                </div>
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-1">Password:</label>
+                                    <input type="password" id="admin-pass" placeholder="e.g. P@ssw0rd123" class="w-full border border-gray-400 p-1.5 bg-white">
+                                </div>
+                                <div>
+                                    <label class="block font-medium text-gray-700 mb-1">Re-enter password:</label>
+                                    <input type="password" id="admin-pass-confirm" placeholder="e.g. P@ssw0rd123" class="w-full border border-gray-400 p-1.5 bg-white">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-3 pt-4 border-t border-gray-300">
+                            <button onclick="validatePasswordStep()" class="win-btn win-btn-primary px-6 py-1 font-semibold">Finish</button>
+                        </div>
+                    `;
+                    break;
+
+                case 8:
+                    // Step 9: Completed Desktop Desktop
+                    updateBot("🎉 CONGRATULATIONS! You successfully installed Windows Server 2019 GUI! You earned +200 bonus XP!", "success");
+                    unlockBadge('sec_master');
+                    state.user.simCompleted = true;
+
+                    container.innerHTML = `
+                        <div class="bg-slate-900 text-white rounded-lg p-6 text-center space-y-4 my-2 border border-cyan-500/30">
+                            <div class="w-16 h-16 bg-cyan-500/20 text-cyan-400 rounded-2xl flex items-center justify-center text-3xl mx-auto shadow-lg shadow-cyan-500/20">
+                                <i class="fa-solid fa-desktop"></i>
+                            </div>
+                            <h3 class="text-xl font-bold">Windows Server 2019 Desktop Experience Ready</h3>
+                            <p class="text-xs text-slate-300 max-w-md mx-auto">Server Manager GUI dashboard is ready for Active Directory, DNS, and DHCP configuration tasks.</p>
+                            
+                            <div class="pt-2 flex flex-wrap justify-center gap-3">
+                                <button onclick="resetSimulation()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-semibold rounded-lg border border-slate-700">
+                                    Re-run Simulation
+                                </button>
+                                <button onclick="switchTab('tab-quiz')" class="px-5 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-xs font-bold text-white rounded-lg shadow-lg transition">
+                                    Proceed to Assessment Quiz <i class="fa-solid fa-arrow-right ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div></div>
+                    `;
+                    break;
+            }
+        }
+
+
+        function handleSimAction(isCorrect, badgeToUnlock = null) {
+            if (isCorrect) {
+                addPoints(50);
+                if (badgeToUnlock) unlockBadge(badgeToUnlock);
+                if (state.simStep === 0) unlockBadge('first_step');
+                state.simStep++;
+                renderSimStep();
+            }
+        }
+
+        function selectOsOption(idx) {
+            state.simSelectedOs = idx;
+            document.querySelectorAll('.os-item').forEach((el, i) => {
+                if (i === idx) {
+                    el.classList.add('bg-blue-200', 'font-bold');
+                } else {
+                    el.classList.remove('bg-blue-200', 'font-bold');
+                }
+            });
+        }
+
+        function validateOsStep() {
+            if (state.simSelectedOs === null) {
+                triggerMistake("Please select an operating system edition first!");
+                return;
+            }
+            if (state.simSelectedOs === 1) {
+                // Correct choice: Standard Desktop Experience
+                handleSimAction(true, 'gui_master');
+            } else {
+                triggerMistake("In CSS NC II tasks, you MUST select 'Windows Server 2019 Standard Evaluation (Desktop Experience)' to get GUI tools!");
+            }
+        }
+
+        function validateLicenseStep() {
+            const checked = document.getElementById('license-check')?.checked;
+            if (checked) {
+                handleSimAction(true);
+            } else {
+                triggerMistake("You must check 'I accept the license terms' box to proceed with installation!");
+            }
+        }
+
+        function createPartitionAction() {
+            if (state.simPartitionCreated) return;
+            
+            // Simulating prompt warning
+            showCustomModal(
+                "Windows Setup",
+                "To ensure that all Windows features work correctly, Windows might create additional partitions for system files.",
+                () => {
+                    state.simPartitionCreated = true;
+                    addPoints(25);
+                    renderSimStep();
+                }
+            );
+        }
+
+        function selectPartition(num) {
+            if (num === 2) {
+                state.simPartitionSelected = true;
+                document.getElementById('part-2')?.classList.add('bg-blue-200', 'font-bold');
+                document.getElementById('part-1')?.classList.remove('bg-blue-200', 'font-bold');
+            } else {
+                state.simPartitionSelected = false;
+                triggerMistake("Do not install Windows on the System Reserved partition! Select Partition 2 (Primary).");
+            }
+        }
+
+        function validatePartitionStep() {
+            if (!state.simPartitionCreated) {
+                triggerMistake("You must click 'New' to create system partitions before proceeding!");
+                return;
+            }
+            if (!state.simPartitionSelected) {
+                triggerMistake("Select 'Drive 0 Partition 2' (Primary partition) before clicking Next!");
+                return;
+            }
+            unlockBadge('partition_master');
+            handleSimAction(true);
+        }
+
+        function runSimulationProgress() {
+            let progress = 0;
+            const bar = document.getElementById('sim-progress-bar');
+            const num = document.getElementById('sim-progress-num');
+
+            const interval = setInterval(() => {
+                progress += 25;
+                if (bar) bar.style.width = `${progress}%`;
+                if (num) num.textContent = progress;
+
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        state.simStep++;
+                        renderSimStep();
+                    }, 600);
+                }
+            }, 500);
+        }
+
+        function validatePasswordStep() {
+            const p1 = document.getElementById('admin-pass')?.value;
+            const p2 = document.getElementById('admin-pass-confirm')?.value;
+
+            if (!p1 || !p2) {
+                triggerMistake("Please enter and confirm the Administrator password!");
+                return;
+            }
+            if (p1 !== p2) {
+                triggerMistake("Passwords do not match! Please enter matching passwords.");
+                return;
+            }
+
+            // Strong password regex: 8+ chars, upper, lower, digit, special char
+            const strongRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}$/;
+            if (!strongRegex.test(p1)) {
+                triggerMistake("Password does not meet complexity rules! Must be 8+ chars with Uppercase, Lowercase, Number & Symbol (e.g. P@ssw0rd123).");
+                return;
+            }
+
+            addPoints(100);
+            handleSimAction(true);
+        }
+
+        function triggerMistake(reason) {
+            deductPoints(10);
+            updateBot(reason, "error");
+        }
+
+        function updateBot(msg, type = "info") {
+            const speech = document.getElementById('bot-speech-text');
+            const icon = document.getElementById('bot-icon');
+            const alertBox = document.getElementById('feedback-alert');
+            const alertText = document.getElementById('feedback-text');
+            const alertIcon = document.getElementById('feedback-icon');
+
+            if (speech) speech.textContent = `"${msg}"`;
+
+            if (alertBox && alertText && alertIcon) {
+                alertBox.classList.remove('hidden', 'bg-red-950/80', 'text-red-300', 'border-red-800', 'bg-emerald-950/80', 'text-emerald-300', 'border-emerald-800');
+                
+                if (type === "error") {
+                    if (icon) icon.className = "fa-solid fa-robot-dead text-red-400";
+                    alertBox.classList.add('bg-red-950/80', 'text-red-300', 'border', 'border-red-800');
+                    alertIcon.className = "fa-solid fa-triangle-exclamation text-red-400";
+                    alertText.textContent = "Mistake detected! -10 PTS";
+                } else if (type === "success") {
+                    if (icon) icon.className = "fa-solid fa-face-smile-beam text-emerald-400";
+                    alertBox.classList.add('bg-emerald-950/80', 'text-emerald-300', 'border', 'border-emerald-800');
+                    alertIcon.className = "fa-solid fa-circle-check text-emerald-400";
+                    alertText.textContent = "Great job! Keep going!";
+                } else {
+                    if (icon) icon.className = "fa-solid fa-robot text-cyan-400";
+                    alertBox.classList.add('hidden');
+                }
+            }
+        }
+
+        function addPoints(pts) {
+            state.user.points += pts;
+            updateUserHeader();
+        }
+
+        function deductPoints(pts) {
+            state.user.points = Math.max(0, state.user.points - pts);
+            updateUserHeader();
+        }
+
+        function unlockBadge(badgeId) {
+            if (!state.user.badges.includes(badgeId)) {
+                state.user.badges.push(badgeId);
+                renderBadges();
+            }
+        }
+
+        function updateUserHeader() {
+            document.getElementById('header-user-points').textContent = state.user.points;
+            document.getElementById('user-display-name').textContent = state.user.name;
+            updateLeaderboard();
+        }
+
+        function resetSimulation() {
+            state.simStep = 0;
+            state.simSelectedOs = null;
+            state.simSelectedType = null;
+            state.simPartitionCreated = false;
+            state.simPartitionSelected = false;
+            renderSimStep();
+        }
+
+
+        // QUIZ RENDERER
+        function renderQuiz() {
+            const container = document.getElementById('quiz-container');
+            if (!container) return;
+
+            let html = '<form id="quiz-form" onsubmit="submitQuiz(event)" class="space-y-6">';
+            
+            QUIZ_QUESTIONS.forEach((q, idx) => {
+                html += `
+                    <div class="space-y-3 p-4 bg-slate-900/50 rounded-xl border border-slate-800">
+                        <p class="font-semibold text-slate-200 text-sm">
+                            <span class="text-cyan-400 mr-1">Q${idx + 1}.</span> ${q.question}
+                        </p>
+                        <div class="space-y-2 text-xs">
+                            ${q.options.map((opt, optIdx) => `
+                                <label class="flex items-center space-x-3 p-2.5 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 cursor-pointer">
+                                    <input type="radio" name="q${q.id}" value="${optIdx}" required class="text-cyan-500 focus:ring-cyan-500">
+                                    <span class="text-slate-300">${opt}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `
+                <button type="submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 font-bold text-white text-sm shadow-lg transition">
+                    Submit Assessment Answers
+                </button>
+            </form>`;
+
+            container.innerHTML = html;
+        }
+
+        function submitQuiz(e) {
+            e.preventDefault();
+            let score = 0;
+
+            QUIZ_QUESTIONS.forEach(q => {
+                const selected = document.querySelector(`input[name="q${q.id}"]:checked`);
+                if (selected && parseInt(selected.value) === q.correct) {
+                    score++;
+                }
+            });
+
+            const percent = Math.round((score / QUIZ_QUESTIONS.length) * 100);
+            state.user.quizScore = percent;
+
+            const quizContainer = document.getElementById('quiz-container');
+            const resultCard = document.getElementById('quiz-result-card');
+            const icon = document.getElementById('quiz-status-icon');
+            const title = document.getElementById('quiz-result-title');
+            const desc = document.getElementById('quiz-result-desc');
+            const certBtn = document.getElementById('view-cert-btn');
+
+            if (quizContainer) quizContainer.classList.add('hidden');
+            if (resultCard) resultCard.classList.remove('hidden');
+
+            if (percent >= 60) {
+                // PASS
+                icon.className = "w-16 h-16 rounded-full mx-auto flex items-center justify-center text-3xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
+                icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+                title.className = "text-2xl font-bold text-emerald-400";
+                title.textContent = `Passed! Score: ${percent}% (${score}/${QUIZ_QUESTIONS.length})`;
+                desc.textContent = "Congratulations! You demonstrated solid competency for COC 3 Windows Server 2019 installation.";
+                if (certBtn) certBtn.classList.remove('hidden');
+                
+                addPoints(150);
+                unlockBadge('quiz_passed');
+            } else {
+                // FAIL
+                icon.className = "w-16 h-16 rounded-full mx-auto flex items-center justify-center text-3xl bg-red-500/20 text-red-400 border border-red-500/40";
+                icon.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+                title.className = "text-2xl font-bold text-red-400";
+                title.textContent = `Needs Practice. Score: ${percent}% (${score}/${QUIZ_QUESTIONS.length})`;
+                desc.textContent = "You need at least 60% passing score to earn your Certificate. Review the simulation and try again!";
+                if (certBtn) certBtn.classList.add('hidden');
+            }
+        }
+
+        function resetQuiz() {
+            document.getElementById('quiz-container')?.classList.remove('hidden');
+            document.getElementById('quiz-result-card')?.classList.add('hidden');
+            renderQuiz();
+        }
+
+        function generateCertificate() {
+            document.getElementById('cert-user-name').textContent = state.user.name;
+            document.getElementById('cert-user-section').textContent = `Section / Batch: ${state.user.section}`;
+            document.getElementById('cert-score').textContent = `${state.user.quizScore}%`;
+            document.getElementById('cert-date').textContent = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+            document.getElementById('cert-id').textContent = 'CSS-COC3-' + Math.floor(100000 + Math.random() * 900000);
+            
+            document.getElementById('cert-modal')?.classList.remove('hidden');
+        }
+
+        function closeCertModal() {
+            document.getElementById('cert-modal')?.classList.add('hidden');
+        }
+
+        // LEADERBOARD RENDERER
+        function updateLeaderboard() {
+            const body = document.getElementById('leaderboard-body');
+            if (!body) return;
+
+            // Merge current user
+            const list = [...state.leaderboardData];
+            const existingIdx = list.findIndex(item => item.name === state.user.name);
+            
+            if (existingIdx >= 0) {
+                list[existingIdx].points = state.user.points;
+            } else {
+                list.push({
+                    name: state.user.name,
+                    section: state.user.section,
+                    simScore: state.user.points,
+                    points: state.user.points
+                });
+            }
+
+            list.sort((a, b) => b.points - a.points);
+
+            body.innerHTML = list.map((item, idx) => `
+                <tr class="${item.name === state.user.name ? 'bg-cyan-950/40 font-bold border-l-4 border-l-cyan-400' : 'hover:bg-slate-900/50'}">
+                    <td class="py-3 px-6">
+                        ${idx === 0 ? '<i class="fa-solid fa-crown text-amber-400 mr-1"></i> #1' : `#${idx + 1}`}
+                    </td>
+                    <td class="py-3 px-6 text-white">${item.name}</td>
+                    <td class="py-3 px-6 text-slate-400 text-xs">${item.section}</td>
+                    <td class="py-3 px-6 text-center text-cyan-400">${item.simScore} XP</td>
+                    <td class="py-3 px-6 text-right font-bold text-amber-400">${item.points} PTS</td>
+                </tr>
+            `).join('');
+        }
+
+        // BADGES RENDERER
+        function renderBadges() {
+            const grid = document.getElementById('badges-grid');
+            if (!grid) return;
+
+            grid.innerHTML = BADGES_DEFINITIONS.map(badge => {
+                const isUnlocked = state.user.badges.includes(badge.id);
+                return `
+                    <div class="glass-panel p-5 rounded-2xl border ${isUnlocked ? 'border-cyan-500/40 bg-cyan-950/20' : 'border-slate-800 opacity-50'} flex items-start space-x-4">
+                        <div class="w-12 h-12 rounded-xl ${isUnlocked ? 'bg-cyan-500/20 ' + badge.color : 'bg-slate-800 text-slate-600'} flex items-center justify-center text-xl shrink-0">
+                            <i class="fa-solid ${badge.icon}"></i>
+                        </div>
+                        <div>
+                            <span class="text-[10px] font-bold uppercase tracking-wider ${isUnlocked ? 'text-cyan-400' : 'text-slate-500'}">
+                                ${isUnlocked ? 'Unlocked' : 'Locked'}
+                            </span>
+                            <h4 class="font-bold text-white text-sm mt-0.5">${badge.title}</h4>
+                            <p class="text-xs text-slate-400 mt-1 leading-normal">${badge.desc}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // TAB SWITCHER
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId)?.classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.className = "nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all text-slate-300 hover:text-white hover:bg-slate-800";
+            });
+
+            const activeBtn = document.getElementById(`nav-${tabId.replace('tab-', '')}`);
+            if (activeBtn) {
+                activeBtn.className = "nav-btn px-4 py-2 rounded-lg text-sm font-medium transition-all text-cyan-400 bg-cyan-950/50 border border-cyan-800/50";
+            }
+        }
+
+        // AUTH MODAL LOGIC
+        function openAuthModal() {
+            document.getElementById('auth-modal')?.classList.remove('hidden');
+        }
+
+        function closeAuthModal() {
+            document.getElementById('auth-modal')?.classList.add('hidden');
+        }
+
+        function handleAuthSubmit(e) {
+            e.preventDefault();
+            const username = document.getElementById('auth-username')?.value;
+            const section = document.getElementById('auth-section')?.value || '12-CSS';
+
+            if (username) {
+                state.user.name = username;
+                state.user.section = section;
+                updateUserHeader();
+                closeAuthModal();
+            }
+        }
+
+        // CUSTOM MODAL ALERT
+        function showCustomModal(title, msg, onConfirm) {
+            const overlay = document.createElement('div');
+            overlay.className = "fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4";
+            overlay.innerHTML = `
+                <div class="bg-[#f0f0f0] border border-slate-500 text-black max-w-sm w-full rounded shadow-2xl overflow-hidden text-xs">
+                    <div class="bg-blue-700 text-white px-3 py-1 font-bold flex justify-between items-center">
+                        <span>${title}</span>
+                    </div>
+                    <div class="p-4 space-y-4">
+                        <p>${msg}</p>
+                        <div class="flex justify-end">
+                            <button id="modal-ok-btn" class="win-btn win-btn-primary px-5 py-1 font-semibold">OK</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            document.getElementById('modal-ok-btn').onclick = () => {
+                document.body.removeChild(overlay);
+                if (onConfirm) onConfirm();
+            };
+        }
+
+        // INITIALIZATION
+        window.onload = function() {
+            renderSimStep();
+            renderQuiz();
+            renderBadges();
+            updateLeaderboard();
+        };
+    </script>
+</body>
+</html>
