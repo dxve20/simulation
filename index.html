@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ServerLab Simulator</title>
+  <!-- colours the phone's browser bar: Beige in light mode, Navy in dark mode -->
+  <meta name="theme-color" content="#f5efeb" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#1f2c3a" media="(prefers-color-scheme: dark)">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="app"></div>
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <noscript>ServerLab needs JavaScript turned on.</noscript>
+  <!-- data.js: the lesson, quiz and badges.  logic.js: the rules (checks, points, levels).  ui.js: draws the screens. -->
+  <script src="data.js"></script>
+  <script src="logic.js"></script>
+  <script src="ui.js"></script>
+</body>
+</html>
